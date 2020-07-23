@@ -1,1 +1,3 @@
-# MSP430_SPI_UART
+# MSP430 for LORA SX1278
+
+Testing SPI
