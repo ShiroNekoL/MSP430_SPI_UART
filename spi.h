@@ -1,11 +1,21 @@
-#ifndef SPI_H_
-#define SPI_H_
-
-#include <msp430.h>
 #include <stdint.h>
-#include "gpio.h"
 
-void SPI_Init();
-void SPI_SendByte(uint8_t byte);
+#ifndef SPI_H
+#define SPI_H
 
-#endif /* SPI_H_ */
+extern volatile uint8_t spi_buf;
+
+void spi_init();
+
+void spi_txready();
+void spi_rxready();
+
+void spi_send(uint8_t data);
+void spi_recv();
+
+void spi_transfer(uint8_t data);
+
+void spi_chipEnable();
+void spi_chipDisable();
+
+#endif

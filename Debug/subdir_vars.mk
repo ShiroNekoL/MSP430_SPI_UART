@@ -8,40 +8,55 @@ SHELL = cmd.exe
 CMD_SRCS += \
 ../lnk_msp430g2553.cmd 
 
+LD_SRCS += \
+../msp430g2553.ld 
+
 C_SRCS += \
-../gpio.c \
+../base64.c \
 ../main.c \
+../mcu.c \
 ../spi.c \
-../timer.c 
+../sx1276.c \
+../uart.c 
 
 C_DEPS += \
-./gpio.d \
+./base64.d \
 ./main.d \
+./mcu.d \
 ./spi.d \
-./timer.d 
+./sx1276.d \
+./uart.d 
 
 OBJS += \
-./gpio.obj \
+./base64.obj \
 ./main.obj \
+./mcu.obj \
 ./spi.obj \
-./timer.obj 
+./sx1276.obj \
+./uart.obj 
 
 OBJS__QUOTED += \
-"gpio.obj" \
+"base64.obj" \
 "main.obj" \
+"mcu.obj" \
 "spi.obj" \
-"timer.obj" 
+"sx1276.obj" \
+"uart.obj" 
 
 C_DEPS__QUOTED += \
-"gpio.d" \
+"base64.d" \
 "main.d" \
+"mcu.d" \
 "spi.d" \
-"timer.d" 
+"sx1276.d" \
+"uart.d" 
 
 C_SRCS__QUOTED += \
-"../gpio.c" \
+"../base64.c" \
 "../main.c" \
+"../mcu.c" \
 "../spi.c" \
-"../timer.c" 
+"../sx1276.c" \
+"../uart.c" 
 
 

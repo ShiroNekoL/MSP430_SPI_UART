@@ -1,3 +1,1 @@
-# MSP430 for LORA SX1278
-
-Testing SPI
+# MSP430_SPI_LoRa
