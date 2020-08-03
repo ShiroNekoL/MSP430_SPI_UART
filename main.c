@@ -28,7 +28,9 @@ void SendPing() {
   buffer[7] = 'G';
 
   uart_write("send_started\n\r");
+  P2IE &= ~BIT0;
   sx1276_send(buffer, 8);
+  P2IE |= BIT0;
 //  sx1276_set_tx(10000);
 
 }
@@ -70,14 +72,14 @@ void main(void) {
   uart_write("\n2? \n");
   __delay_cycles(1000000);
 //  sx1276_set_rx(100000);
-  P2IE |= BIT0;
+//  P2IE |= BIT0;
   __bis_SR_register(GIE);
 
 
   //while(1){ mcu_delayms(500); }
   state = 1;
-  SendPing();
-  __delay_cycles(1000000);
+//  SendPing();
+//  __delay_cycles(1000000);
   while(1)
   {
 //    if(state == 0)
@@ -89,6 +91,9 @@ void main(void) {
 //
 //    }
 //      SendPing();
+      SendPing();
+      __delay_cycles(1000000);
+      mcu_delayms(1000);
 //
   }
 

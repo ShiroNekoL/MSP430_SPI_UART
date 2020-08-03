@@ -128,13 +128,13 @@ void sx1276_init(radio_events_t* events) {
 void sx1275_reset() {
     mcu_delayms(1);
 
-    P1DIR |= BIT4;
-    P1OUT |= BIT4;
+    P1DIR |= BIT3;
+    P1OUT |= BIT3;
 
     mcu_delayms(1);
 
-    P1OUT &= ~BIT4;
-    P1DIR &= ~BIT4;
+    P1OUT &= ~BIT3;
+    P1DIR &= ~BIT3;
 
     mcu_delayms(6);
 }
@@ -985,7 +985,7 @@ void sx1276_on_dio0irq() {
         case MODEM_LORA:
           // Clear Irq
           sx1276_write(REG_LR_IRQFLAGS, RFLR_IRQFLAGS_TXDONE);
-//          OnTXDone();
+          OnTxDone();
         case MODEM_FSK:
         default:
           sx1276.Settings.State = RF_IDLE;

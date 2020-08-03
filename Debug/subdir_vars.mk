@@ -8,9 +8,6 @@ SHELL = cmd.exe
 CMD_SRCS += \
 ../lnk_msp430g2553.cmd 
 
-LD_SRCS += \
-../msp430g2553.ld 
-
 C_SRCS += \
 ../base64.c \
 ../main.c \

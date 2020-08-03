@@ -17,7 +17,6 @@ ORDERED_OBJS += \
 "./sx1276.obj" \
 "./uart.obj" \
 "../lnk_msp430g2553.cmd" \
-"../msp430g2553.ld" \
 $(GEN_CMDS__FLAG) \
 -llibc.a \
 
@@ -126,34 +125,34 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXE_OUTPUTS += \
-fds.out \
+MSP43_SPI_LoRa.out \
 
 EXE_OUTPUTS__QUOTED += \
-"fds.out" \
+"MSP43_SPI_LoRa.out" \
 
 BIN_OUTPUTS += \
-fds.hex \
+MSP43_SPI_LoRa.hex \
 
 BIN_OUTPUTS__QUOTED += \
-"fds.hex" \
+"MSP43_SPI_LoRa.hex" \
 
 
 # All Target
-all: $(OBJS) $(CMD_SRCS) $(LD_SRCS) $(GEN_CMDS)
-	@$(MAKE) --no-print-directory -Onone "fds.out"
+all: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
+	@$(MAKE) --no-print-directory -Onone "MSP43_SPI_LoRa.out"
 
 # Tool invocations
-fds.out: $(OBJS) $(CMD_SRCS) $(LD_SRCS) $(GEN_CMDS)
+MSP43_SPI_LoRa.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: MSP430 Linker'
-	"D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/bin/cl430" -vmsp --use_hw_mpy=none --advice:power=all --define=__MSP430G2553__ -g --printf_support=minimal --diag_warning=225 --diag_wrap=off --display_error_number -z -m"fds.map" --heap_size=80 --stack_size=80 -i"D:/TI/ccs1000/ccs/ccs_base/msp430/include" -i"D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/lib" -i"D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="fds_linkInfo.xml" --use_hw_mpy=none --rom_model -o "fds.out" $(ORDERED_OBJS)
+	"D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/bin/cl430" -vmsp --use_hw_mpy=none --advice:power=all --define=__MSP430G2553__ -g --printf_support=minimal --diag_warning=225 --diag_wrap=off --display_error_number -z -m"MSP43_SPI_LoRa.map" --heap_size=80 --stack_size=80 -i"D:/TI/ccs1000/ccs/ccs_base/msp430/include" -i"D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/lib" -i"D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="MSP43_SPI_LoRa_linkInfo.xml" --use_hw_mpy=none --rom_model -o "MSP43_SPI_LoRa.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 
-fds.hex: $(EXE_OUTPUTS)
+MSP43_SPI_LoRa.hex: $(EXE_OUTPUTS)
 	@echo 'Building files: $(strip $(EXE_OUTPUTS__QUOTED))'
 	@echo 'Invoking: MSP430 Hex Utility'
-	"D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/bin/hex430" --memwidth=8 --romwidth=8 -o "fds.hex" $(EXE_OUTPUTS__QUOTED)
+	"D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/bin/hex430" --memwidth=8 --romwidth=8 -o "MSP43_SPI_LoRa.hex" $(EXE_OUTPUTS__QUOTED)
 	@echo 'Finished building: $(strip $(EXE_OUTPUTS__QUOTED))'
 	@echo ' '
 
