@@ -13,7 +13,7 @@
 uint8_t buffer[BUFFER_SIZE];
 uint8_t buffer2[BUFFER_SIZE];
 
-static radio_events_t radio_events;
+static RadioEvents radio_events;
 
 int state = 0;
 
@@ -27,9 +27,9 @@ void SendPing() {
   buffer[6] = 'N';
   buffer[7] = 'G';
 
-  uart_write("send_started\n\r");
+  UART_WriteStr("send_started\n\r");
   P2IE &= ~BIT0;
-  sx1276_send(buffer, 8);
+  SX1278_Send(buffer, 8);
   P2IE |= BIT0;
 //  sx1276_set_tx(10000);
 
@@ -43,45 +43,44 @@ void OnRxError();
 
 
 void main(void) {
-  mcu_init();
+    MCU_Init();
 
-  P1DIR |= BIT0;
+    P1DIR |= BIT0;
 
-  uart_init();
-  uart_write("\n\n Start \n\n");
-  spi_init();
-  P2IE &= ~BIT0;
-  rf_init_lora();
+    UART_Init();
+    UART_WriteStr("\n\n Start \n\n");
+    SPI_Init();
+    P2IE &= ~BIT0;
+    rf_init_lora();
 
-  uart_write("$IND \n,");
-  uart_printhex8(sx1276_read(REG_VERSION));
-  uart_writec(',');
-  uart_printhex32(RF_FREQUENCY);
-  uart_writec(',');
-  uart_printhex8(TX_OUTPUT_POWER);
-  uart_writec(',');
-  uart_printhex8(LORA_BANDWIDTH);
-  uart_writec(',');
-  uart_printhex8(LORA_SPREADING_FACTOR);
-  uart_writec(',');
-  uart_printhex8(LORA_CODINGRATE);
-  uart_writec('\n');
-  uart_write("1? \n");
+    UART_WriteStr("$IND \n,");
+    UART_PrintHex8(SX1278_Read(REG_VERSION));
+    UART_WriteChar(',');
+    UART_PrintHex32(RF_FREQUENCY);
+    UART_WriteChar(',');
+    UART_PrintHex8(TX_OUTPUT_POWER);
+    UART_WriteChar(',');
+    UART_PrintHex8(LORA_BANDWIDTH);
+    UART_WriteChar(',');
+    UART_PrintHex8(LORA_SPREADING_FACTOR);
+    UART_WriteChar(',');
+    UART_PrintHex8(LORA_CODINGRATE);
+    UART_WriteChar('\n');
+    UART_WriteStr("1? \n");
 
-  uart_printhex8(sx1276_read(0x1D));
-  uart_write("\n2? \n");
-  __delay_cycles(1000000);
+    UART_PrintHex8(SX1278_Read(0x1D));
+    UART_WriteStr("\n2? \n");
+    __delay_cycles(1000000);
 //  sx1276_set_rx(100000);
 //  P2IE |= BIT0;
-  __bis_SR_register(GIE);
+    __bis_SR_register(GIE);
 
 
   //while(1){ mcu_delayms(500); }
-  state = 1;
+    state = 1;
 //  SendPing();
 //  __delay_cycles(1000000);
-  while(1)
-  {
+    while(1) {
 //    if(state == 0)
 //    {
 ////      state = 1;
@@ -91,19 +90,18 @@ void main(void) {
 //
 //    }
 //      SendPing();
-      SendPing();
-      __delay_cycles(1000000);
-      mcu_delayms(1000);
+        SendPing();
+        __delay_cycles(1000000);
+        Delay_ms(1000);
 //
-  }
-
+    }
 }
 
 /*
  * INterrupt
  */
 #pragma vector=PORT2_VECTOR
-__interrupt void Port_2(void)
+__interrupt void Port_2_ISR(void)
 {
     if(P2IFG == BIT0)
     {
@@ -122,8 +120,8 @@ __interrupt void Port_2(void)
 //        }
 
         //else OnRxDone(payload, size, rssi, snr);
-        uart_write("interrupt happens \r");
-        sx1276_on_dio0irq();
+        UART_WriteStr("interrupt happens \r");
+        SX1278_OnDIO0IRQ();
 //        OnTxDone();
 //        SendPing();
 //        OnRxDone(buffer2, 32, sx1276.Settings.LoRaPacketHandler.RssiValue, sx1276.Settings.LoRaPacketHandler.SnrValue);
@@ -134,7 +132,7 @@ __interrupt void Port_2(void)
 
 
 void OnTxDone() {
-  uart_write("$TXS\n");
+    UART_WriteStr("$TXS\n");
 
 //  if(state == 1) sx1276_set_rx(0);
 
@@ -142,30 +140,30 @@ void OnTxDone() {
 
 void OnRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr) {
 
-    uart_write("txdone_start");
+    UART_WriteStr("txdone_start");
     P1OUT |= BIT0;
 
-  uart_write("$RXS,");
+    UART_WriteStr("$RXS,");
 
-  uart_printhex32(rssi);
-  uart_writec(',');
+    UART_PrintHex32(rssi);
+    UART_WriteChar(',');
 
-  uart_printhex8(snr);
-  uart_writec(',');
+    UART_PrintHex8(snr);
+    UART_WriteChar(',');
 
-  uart_printhex32(size);
-  uart_writec(',');
+    UART_PrintHex32(size);
+    UART_WriteChar(',');
 
-  base64_encode(payload, size);
-  uart_writec('\n');
-  P1OUT &= ~BIT0;
-  uart_write("????");
+    Base64_Encode(payload, size);
+    UART_WriteChar('\n');
+    P1OUT &= ~BIT0;
+    UART_WriteStr("????");
 
 //  if(state == 1) SendPing();
 }
 
 void OnRxError() {
-  uart_write("$RXE\n");
+    UART_WriteStr("$RXE\n");
 }
 void rf_init_lora() {
   radio_events.TxDone = OnTxDone;
@@ -174,16 +172,16 @@ void rf_init_lora() {
   //radio_events.RxTimeout = OnRxTimeout;
   radio_events.RxError = OnRxError;
 
-  sx1276_init(radio_events);
-  sx1276_set_channel(RF_FREQUENCY);
+  SX1278_Init(&radio_events);
+  SX1278_SetChannel(RF_FREQUENCY);
 
 
-  sx1276_set_txconfig(MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
+  SX1278_SetTXConfig(MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
                                   LORA_SPREADING_FACTOR, LORA_CODINGRATE,
                                   LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
                                   true, 0, 0, LORA_IQ_INVERSION_ON, 3000);
 
-  sx1276_set_rxconfig(MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
+  SX1278_SetRXConfig(MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
                                   LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
                                   LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
                                   0, true, 0, 0, LORA_IQ_INVERSION_ON, true);

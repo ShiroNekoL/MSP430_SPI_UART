@@ -3,11 +3,11 @@
 #ifndef UART_H
 #define UART_H
 
-void uart_init();
-void uart_write(char str[]);
-void uart_writen(char* str, int n);
-void uart_writec(char data);
-void uart_printhex8(uint8_t n);
-void uart_printhex32(uint32_t n);
+void UART_Init();
+void UART_WriteStr(char* str);
+void UART_WriteNChar(char* str, int number);
+void UART_WriteChar(char character);
+void UART_PrintHex8(uint8_t number);
+void UART_PrintHex32(uint32_t number);
 
 #endif

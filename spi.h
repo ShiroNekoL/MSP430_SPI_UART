@@ -1,21 +1,23 @@
-#include <stdint.h>
-
 #ifndef SPI_H
 #define SPI_H
 
-extern volatile uint8_t spi_buf;
+#include <msp430.h>
+#include <stdint.h>
+#include "main.h"
 
-void spi_init();
+extern volatile uint8_t SPI_Buffer;
 
-void spi_txready();
-void spi_rxready();
+void SPI_Init();
 
-void spi_send(uint8_t data);
-void spi_recv();
+void SPI_TXReady();
+void SPI_RXReady();
 
-void spi_transfer(uint8_t data);
+void SPI_SendByte(uint8_t data);
+void SPI_Receive();
 
-void spi_chipEnable();
-void spi_chipDisable();
+void SPI_TransferByte(uint8_t data);
+
+void SPI_ChipEnable(uint8_t ChipPort, uint8_t ChipPin);
+void SPI_ChipDisable(uint8_t ChipPort, uint8_t ChipPin);
 
 #endif

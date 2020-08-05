@@ -1,97 +1,102 @@
-#include <stdint.h>
-#include <stdbool.h>
-#include "mcu.h"
-
 #ifndef SX1276_H
 #define SX1276_H
 
-typedef struct {
-    void (*TxDone)();
-    void (*TxTimeout)();
-    void (*RxDone)(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr);
-    void (*RxTimeout)();
-    void (*RxError)();
-    void (*FhssChangeChannel)(uint8_t currentChannel);
-    void (*CadDone) (int8_t channelActivityDetected);
-} radio_events_t;
+#include <stdint.h>
+#include <stdbool.h>
+#include <msp430.h>
+#include <string.h>
+#include <math.h>
+#include "mcu.h"
+#include "sx1276.h"
+#include "sx1276regs-fsk.h"
+#include "sx1276regs-lora.h"
+#include "spi.h"
+#include "uart.h"
+#include "main.h"
 
-typedef enum
-{
+typedef struct {
+    void (*TxDone) ();
+    void (*TxTimeout) ();
+    void (*RxDone) (uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr);
+    void (*RxTimeout) ();
+    void (*RxError) ();
+    void (*FhssChangeChannel) (uint8_t currentChannel);
+    void (*CadDone) (int8_t channelActivityDetected);
+} RadioEvents;
+
+typedef enum {
     RF_IDLE = 0,
     RF_RX_RUNNING,
     RF_TX_RUNNING,
     RF_CAD,
-} radio_state_t;
+} RadioStates;
 
 typedef enum {
     MODEM_FSK = 0,
     MODEM_LORA,
-} radio_modem_t;
-
-typedef struct
-{
-    int8_t   Power;
-    uint32_t Fdev;
-    uint32_t Bandwidth;
-    uint32_t BandwidthAfc;
-    uint32_t Datarate;
-    uint16_t PreambleLen;
-    bool     FixLen;
-    uint8_t  PayloadLen;
-    bool     CrcOn;
-    bool     IqInverted;
-    bool     RxContinuous;
-    uint32_t TxTimeout;
-} radio_fsk_settings_t;
-
-typedef struct
-{
-    uint8_t  PreambleDetected;
-    uint8_t  SyncWordDetected;
-    int8_t   RssiValue;
-    int32_t  AfcValue;
-    uint8_t  RxGain;
-    uint16_t Size;
-    uint16_t NbBytes;
-    uint8_t  FifoThresh;
-    uint8_t  ChunkSize;
-} radio_fsk_packet_handler_t;
+} RadioModem;
 
 typedef struct {
-    int8_t   Power;
-    uint32_t Bandwidth;
-    uint32_t Datarate;
-    bool     LowDatarateOptimize;
-    uint8_t  Coderate;
-    uint16_t PreambleLen;
-    bool     FixLen;
-    uint8_t  PayloadLen;
-    bool     CrcOn;
-    bool     FreqHopOn;
-    uint8_t  HopPeriod;
-    bool     IqInverted;
-    bool     RxContinuous;
-    uint32_t TxTimeout;
-} radio_lora_settings_t;
-
-typedef struct
-{
-    int8_t SnrValue;
-    int16_t RssiValue;
-    uint8_t Size;
-} radio_lora_packet_handler_t;
+    int8_t                          Power;
+    uint32_t                        Fdev;
+    uint32_t                        Bandwidth;
+    uint32_t                        BandwidthAfc;
+    uint32_t                        Datarate;
+    uint16_t                        PreambleLen;
+    bool                            FixLen;
+    uint8_t                         PayloadLen;
+    bool                            CrcOn;
+    bool                            IqInverted;
+    bool                            RxContinuous;
+    uint32_t                        TxTimeout;
+} RadioFSKSettings;
 
 typedef struct {
-    radio_state_t                 State;
-    radio_modem_t                 Modem;
-    uint32_t                      Channel;
-    radio_fsk_settings_t          Fsk;
-    radio_fsk_packet_handler_t    FskPacketHandler;
-    radio_lora_settings_t         LoRa;
-    radio_lora_packet_handler_t   LoRaPacketHandler;
-} radio_settings_t;
+    uint8_t                         PreambleDetected;
+    uint8_t                         SyncWordDetected;
+    int8_t                          RssiValue;
+    int32_t                         AfcValue;
+    uint8_t                         RxGain;
+    uint16_t                        Size;
+    uint16_t                        NbBytes;
+    uint8_t                         FifoThresh;
+    uint8_t                         ChunkSize;
+} RadioFSKPacketHandler;
 
-typedef struct sx1276_struct {
+typedef struct {
+    int8_t                          Power;
+    uint32_t                        Bandwidth;
+    uint32_t                        Datarate;               // Spreading Factor
+    bool                            LowDatarateOptimize;
+    uint8_t                         Coderate;
+    uint16_t                        PreambleLen;
+    bool                            FixLen;
+    uint8_t                         PayloadLen;
+    bool                            CrcOn;
+    bool                            FreqHopOn;
+    uint8_t                         HopPeriod;
+    bool                            IqInverted;
+    bool                            RxContinuous;
+    uint32_t                        TxTimeout;
+} RadioLORASettings;
+
+typedef struct {
+    int8_t                          SnrValue;
+    int16_t                         RssiValue;
+    uint8_t                         Size;
+} RadioLORAPacketHandler;
+
+typedef struct {
+    RadioStates                     State;
+    RadioModem                      Modem;
+    uint32_t                        Channel;
+    RadioFSKSettings                Fsk;
+    RadioFSKPacketHandler           FskPacketHandler;
+    RadioLORASettings               LoRa;
+    RadioLORAPacketHandler          LoRaPacketHandler;
+} RadioSettings;
+
+typedef struct sx1278_struct {
     /*
     Gpio_t        Reset;
     Gpio_t        DIO0;
@@ -102,56 +107,118 @@ typedef struct sx1276_struct {
     Gpio_t        DIO5;
     Spi_t         Spi;
     */
-    radio_settings_t Settings;
-} sx1276_t;
+    RadioSettings Settings;
+} SX1278;
 
-#define XTAL_FREQ                                   32000000
-#define FREQ_STEP                                   61.03515625
+//typedef struct {
+//    RadioModem    Modem;
+//    uint8_t       Addr;
+//    uint8_t       Value;
+//} RadioRegisters;
+//
+//const RadioRegisters radio_registers[] = {
+//    { MODEM_FSK , REG_LNA                 , 0x23 },
+//    { MODEM_FSK , REG_RXCONFIG            , 0x1E },
+//    { MODEM_FSK , REG_RSSICONFIG          , 0xD2 },
+//    { MODEM_FSK , REG_AFCFEI              , 0x01 },
+//    { MODEM_FSK , REG_PREAMBLEDETECT      , 0xAA },
+//    { MODEM_FSK , REG_OSC                 , 0x07 },
+//    { MODEM_FSK , REG_SYNCCONFIG          , 0x12 },
+//    { MODEM_FSK , REG_SYNCVALUE1          , 0xC1 },
+//    { MODEM_FSK , REG_SYNCVALUE2          , 0x94 },
+//    { MODEM_FSK , REG_SYNCVALUE3          , 0xC1 },
+//    { MODEM_FSK , REG_PACKETCONFIG1       , 0xD8 },
+//    { MODEM_FSK , REG_FIFOTHRESH          , 0x8F },
+//    { MODEM_FSK , REG_IMAGECAL            , 0x02 },
+//    { MODEM_FSK , REG_DIOMAPPING1         , 0x00 },
+//    { MODEM_FSK , REG_DIOMAPPING2         , 0x30 },
+//    { MODEM_LORA, REG_LR_PAYLOADMAXLENGTH , 0x40 },
+//};
+//
+//typedef struct {
+//    uint32_t bandwidth;
+//    uint8_t  RegValue;
+//} FSKBandwith;
+//
+//const FSKBandwith fsk_bandwidths[] = {
+//    { 2600  , 0x17 },
+//    { 3100  , 0x0F },
+//    { 3900  , 0x07 },
+//    { 5200  , 0x16 },
+//    { 6300  , 0x0E },
+//    { 7800  , 0x06 },
+//    { 10400 , 0x15 },
+//    { 12500 , 0x0D },
+//    { 15600 , 0x05 },
+//    { 20800 , 0x14 },
+//    { 25000 , 0x0C },
+//    { 31300 , 0x04 },
+//    { 41700 , 0x13 },
+//    { 50000 , 0x0B },
+//    { 62500 , 0x03 },
+//    { 83333 , 0x12 },
+//    { 100000, 0x0A },
+//    { 125000, 0x02 },
+//    { 166700, 0x11 },
+//    { 200000, 0x09 },
+//    { 250000, 0x01 },
+//    { 300000, 0x00 }, // Invalid Badwidth
+//};
 
-#define RX_BUFFER_SIZE                              256
 
-#define RSSI_OFFSET_LF                              -164
-#define RSSI_OFFSET_HF                              -157
+#define XTAL_FREQ                   32000000
+#define FREQ_STEP                   61.03515625             // 32x10^6 / 2^19, reference at page 109
 
-extern sx1276_t sx1276;
+#define RX_BUFFER_SIZE              256
 
-void sx1276_init( /*RadioEvents_t *events */ );
-void sx1275_reset();
-void sx1276_rxchain_calibration();
+#define RSSI_OFFSET_LF              -164
+#define RSSI_OFFSET_HF              -157
 
-void sx1276_set_rxconfig(radio_modem_t modem, uint32_t bandwidth,
-                         uint32_t datarate, uint8_t coderate,
-                         uint32_t bandwidthAfc, uint16_t preambleLen,
-                         uint16_t symbTimeout, bool fixLen,
-                         uint8_t payloadLen,
-                         bool crcOn, bool freqHopOn, uint8_t hopPeriod,
-                         bool iqInverted, bool rxContinuous);
+extern SX1278 sx1278;
 
-void sx1276_set_txconfig(radio_modem_t modem, int8_t power, uint32_t fdev,
-                         uint32_t bandwidth, uint32_t datarate,
-                         uint8_t coderate, uint16_t preambleLen,
-                         bool fixLen, bool crcOn, bool freqHopOn,
-                         uint8_t hopPeriod, bool iqInverted, uint32_t timeout);
+void SX1278_Init(RadioEvents *events);                                              // Done
+void SX1278_Reset(uint8_t ResetPort, uint8_t ResetPin);                             // Done
+void SX1278_RXChainCalib();                                                         // Done
 
-uint32_t sx1276_get_timeonair(radio_modem_t modem, uint8_t pktLen);
+void SX1278_SetRXConfig(RadioModem modem, uint32_t bandwidth,                       // Done
+                        uint32_t datarate, uint8_t coderate,
+                        uint32_t bandwidthAfc, uint16_t preambleLen,
+                        uint16_t symbTimeout, bool fixLen,
+                        uint8_t payloadLen,
+                        bool crcOn, bool freqHopOn, uint8_t hopPeriod,
+                        bool iqInverted, bool rxContinuous);
 
-void sx1276_set_channel(uint32_t freq);
-void sx1276_set_modem(radio_modem_t modem);
-void sx1276_set_opmode(uint8_t opmode);
-void sx1276_set_rx(uint32_t timeout);
-void sx1276_set_tx(uint32_t timeout);
+void SX1278_SetTXConfig(RadioModem modem, int8_t power, uint32_t fdev,              // Semi-done
+                        uint32_t bandwidth, uint32_t datarate,
+                        uint8_t coderate, uint16_t preambleLen,
+                        bool fixLen, bool crcOn, bool freqHopOn,
+                        uint8_t hopPeriod, bool iqInverted, uint32_t timeout);
 
-void sx1276_send(uint8_t *buffer, uint8_t size);
+uint32_t SX1278_GetTimeOnAir(RadioModem modem, uint8_t pktLen);                     // Done
 
-void sx1276_write(uint8_t addr, uint8_t data);
-void sx1276_wrtie_buffer(uint8_t addr, uint8_t* buffer, uint8_t len);
-void sx1276_write_fifo(uint8_t *data, uint8_t len);
+void SX1278_SetChannel(uint32_t freq);                                              // Done
+void SX1278_SetModem(RadioModem modem);                                             // Done
+void SX1278_SetOpmode(uint8_t opmode);                                              // Done
+void SX1278_SetRX(uint32_t timeout);                                                // Done without Timeout
+void SX1278_SetTX(uint32_t timeout);                                                // Done without Timeout
 
-uint8_t sx1276_read(uint8_t addr);
-void sx1276_read_buffer(uint8_t addr, uint8_t* buffer, uint8_t len);
-void sx1276_read_fifo(uint8_t *data, uint8_t len);
+void SX1278_Send(uint8_t *buffer, uint8_t size);
 
-void sx1276_on_dio0irq();
+void SX1278_Write(uint8_t addr, uint8_t data);                                      // Done
+void SX1278_WriteBuffer(uint8_t addr, uint8_t* buffer, uint8_t len);                // Done
+void SX1278_WriteFIFO(uint8_t *data, uint8_t len);                                  // Done
+
+uint8_t SX1278_Read(uint8_t addr);                                                  // Done
+void SX1278_ReadBuffer(uint8_t addr, uint8_t* buffer, uint8_t len);                 // Done
+void SX1278_ReadFIFO(uint8_t *data, uint8_t len);                                   // Done
+
+// ISR from DIO
+void SX1278_OnDIO0IRQ(void);                                                        // Done
+void SX1278_OnDIO1IRQ(void);                                                        // Done
+void SX1278_OnDIO2IRQ(void);                                                        // Done
+void SX1278_OnDIO3IRQ(void);                                                        // Done
+void SX1278_OnDIO4IRQ(void);                                                        // Done
+void SX1278_OnDIO5IRQ(void);                                                        // Done
 
 
 #endif

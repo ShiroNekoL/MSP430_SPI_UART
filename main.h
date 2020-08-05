@@ -1,12 +1,17 @@
-/*
- * main.h
- *
- *  Created on: Jul 29, 2020
- *      Author: Duy
- */
-
 #ifndef MAIN_H_
 #define MAIN_H_
+
+#define Port_1  1
+#define RESET   BIT3
+
+#define Port_2  2
+#define SCLK    BIT5
+#define SDI     BIT6
+#define SDO     BIT7
+#define CS      BIT0
+
+//#define INT1    BIT4
+//#define INT2    BIT3
 
 #define RF_FREQUENCY   434000000 // Hz
 

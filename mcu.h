@@ -3,9 +3,9 @@
 #ifndef MCU_H
 #define MCU_H
 
-void mcu_init();
-void mcu_delayms(uint32_t ms);
-void mcu_delayus(uint32_t us);
-void mcu_memcpy1(uint8_t *dst, const uint8_t *src, uint16_t size);
+void MCU_Init();
+void Delay_ms(uint32_t ms);
+void Delay_us(uint32_t us);
+void MCU_MemCpy(uint8_t *dst, const uint8_t *src, uint16_t size);
 
 #endif
