@@ -62,6 +62,23 @@ const FSKBandwith fsk_bandwidths[] = {
 
 #define RF_MID_BAND_THRESH                          525000000
 
+uint32_t Lora_channel[10] = {
+    432000000,
+    432500000,
+    433000000,
+    433500000,
+    434000000,
+    434500000,
+    435000000,
+    435500000,
+    436000000,
+    436500000
+};
+
+void SX1278_ChangeFHSS(uint8_t index) {
+    SX1278_SetChannel(Lora_channel[index %= 10]);
+}
+
 static uint8_t SX1278_GetPASelect(uint32_t channel) {
     if(channel < RF_MID_BAND_THRESH )
         return RF_PACONFIG_PASELECT_PABOOST;
@@ -96,10 +113,10 @@ void SX1278_Init(RadioEvents* events) {
     SX1278_SetOpmode(RF_OPMODE_SLEEP);
 
     // Initialize IRQ interrupts
-    P2DIR &= (~BIT2); // Set P2.1 SEL as Input
-    P2IES &= (~BIT2); // Rising edge 0 -> 1
-    P2IE  |=  (BIT2); // Enable interrupt for P2.1
-    P2IFG &= (~BIT2); // Clear interrupt flag for P2.1
+//    P2DIR &= (~BIT2); // Set P2.1 SEL as Input
+//    P2IES &= (~BIT2); // Rising edge 0 -> 1
+//    P2IE  |=  (BIT2); // Enable interrupt for P2.1
+//    P2IFG &= (~BIT2); // Clear interrupt flag for P2.1
 
     __enable_interrupt();
     uint8_t i;
@@ -816,16 +833,16 @@ void SX1278_SetOpmode(uint8_t opmode) {
 }
 
 void SX1278_Write(uint8_t addr, uint8_t data) {
-    SPI_ChipEnable(Port_2, CS);
+    SPI_ChipEnable(Port_1, CS);
 
     SPI_TransferByte(addr | 0x80);              // First bit when writing needs to be 1
     SPI_TransferByte(data);
 
-    SPI_ChipDisable(Port_2, CS);
+    SPI_ChipDisable(Port_1, CS);
 }
 
 void SX1278_WriteBuffer(uint8_t addr, uint8_t* data, uint8_t len) {
-    SPI_ChipEnable(Port_2, CS);
+    SPI_ChipEnable(Port_1, CS);
     SPI_SendByte(addr | 0x80);                  // First bit when writing needs to be 1
 
     while (len--)
@@ -833,7 +850,7 @@ void SX1278_WriteBuffer(uint8_t addr, uint8_t* data, uint8_t len) {
 
     SPI_TXReady();                              // Check to see if the TX is finished
 
-    SPI_ChipDisable(Port_2, CS);
+    SPI_ChipDisable(Port_1, CS);
 }
 
 void SX1278_WriteFIFO(uint8_t *data, uint8_t len) {
@@ -841,20 +858,20 @@ void SX1278_WriteFIFO(uint8_t *data, uint8_t len) {
 }
 
 uint8_t SX1278_Read(uint8_t addr) {
-    SPI_ChipEnable(Port_2, CS);
+    SPI_ChipEnable(Port_1, CS);
 
     SPI_TransferByte(addr & 0x7f);              // First bit when reading needs to be 0
     SPI_TransferByte(0x00);
 
     uint8_t result = SPI_Buffer;
 
-    SPI_ChipDisable(Port_2, CS);
+    SPI_ChipDisable(Port_1, CS);
 
     return result;
 }
 
 void SX1278_ReadBuffer(uint8_t addr, uint8_t* data, uint8_t len) {
-    SPI_ChipEnable(Port_2, CS);
+    SPI_ChipEnable(Port_1, CS);
     SPI_SendByte(addr & 0x7f);                  // First bit when reading needs to be 0
 
     while (len--) {
@@ -862,7 +879,7 @@ void SX1278_ReadBuffer(uint8_t addr, uint8_t* data, uint8_t len) {
         *data++ = SPI_Buffer;
     }
 
-    SPI_ChipDisable(Port_2, CS);
+    SPI_ChipDisable(Port_1, CS);
 }
 
 void SX1278_ReadFIFO(uint8_t *data, uint8_t len) {
@@ -957,8 +974,8 @@ void SX1278_OnDIO0IRQ() {
 
                     //TimerStop( &RxTimeoutTimer );
 
-                    if((radio_events != 0) && (radio_events->RxError != 0))
-                        radio_events->RxError();
+//                    if((radio_events != 0) && (radio_events->RxError != 0))
+                    OnRxError();
 
                     break;
                 }
@@ -997,7 +1014,7 @@ void SX1278_OnDIO0IRQ() {
 
                 //TimerStop( &RxTimeoutTimer );
 
-                if((radio_events != 0) && (radio_events->RxDone != 0))
+//                if((radio_events != 0) && (radio_events->RxDone != 0))
                     OnRxDone(RxTxBuffer, sx1278.Settings.LoRaPacketHandler.Size, sx1278.Settings.LoRaPacketHandler.RssiValue, sx1278.Settings.LoRaPacketHandler.SnrValue);
                 }
                 break;
@@ -1017,6 +1034,7 @@ void SX1278_OnDIO0IRQ() {
                         sx1278.Settings.State = RF_IDLE;
                         if((radio_events != 0) && (radio_events->TxDone != 0))
                             OnTxDone( );
+                        UART_WriteStr("send finished \r\n");
 
                         break;
                 }
@@ -1067,8 +1085,9 @@ void SX1278_OnDIO1IRQ( void )
                 SX1278_Write(REG_LR_IRQFLAGS, RFLR_IRQFLAGS_RXTIMEOUT);
 
                 sx1278.Settings.State = RF_IDLE;
-                if((radio_events != NULL) && (radio_events->RxTimeout != NULL))
-                    radio_events->RxTimeout();
+//                if((radio_events != NULL) && (radio_events->RxTimeout != NULL))
+//                    radio_events->RxTimeout();
+                    OnRxTimeout();
                 break;
             default:
                 break;
@@ -1103,8 +1122,7 @@ void SX1278_OnDIO1IRQ( void )
     }
 }
 
-void SX1278_OnDIO2IRQ(void)
-{
+void SX1278_OnDIO2IRQ(void) {
     switch( sx1278.Settings.State )
     {
         case RF_RX_RUNNING:
@@ -1131,8 +1149,9 @@ void SX1278_OnDIO2IRQ(void)
                     // Clear Irq
                     SX1278_Write(REG_LR_IRQFLAGS, RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL);
 
-                    if((radio_events != NULL) && (radio_events->FhssChangeChannel != NULL))
-                        radio_events->FhssChangeChannel((SX1278_Read(REG_LR_HOPCHANNEL) & RFLR_HOPCHANNEL_CHANNEL_MASK));
+//                    if((radio_events != NULL) && (radio_events->FhssChangeChannel != NULL))
+//                        radio_events->FhssChangeChannel((SX1278_Read(REG_LR_HOPCHANNEL) & RFLR_HOPCHANNEL_CHANNEL_MASK));
+                    SX1278_ChangeFHSS((SX1278_Read(REG_LR_HOPCHANNEL) & RFLR_HOPCHANNEL_CHANNEL_MASK));
                 }
                 break;
             default:
@@ -1150,8 +1169,9 @@ void SX1278_OnDIO2IRQ(void)
                     // Clear Irq
                     SX1278_Write(REG_LR_IRQFLAGS, RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL);
 
-                    if((radio_events != NULL ) && ( radio_events->FhssChangeChannel != NULL))
-                        radio_events->FhssChangeChannel((SX1278_Read(REG_LR_HOPCHANNEL) & RFLR_HOPCHANNEL_CHANNEL_MASK));
+//                    if((radio_events != NULL ) && ( radio_events->FhssChangeChannel != NULL))
+//                        radio_events->FhssChangeChannel((SX1278_Read(REG_LR_HOPCHANNEL) & RFLR_HOPCHANNEL_CHANNEL_MASK));
+                    SX1278_ChangeFHSS((SX1278_Read(REG_LR_HOPCHANNEL) & RFLR_HOPCHANNEL_CHANNEL_MASK));
                 }
                 break;
             default:

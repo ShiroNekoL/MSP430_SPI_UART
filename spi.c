@@ -15,8 +15,8 @@ void SPI_Init() {
     P1DIR |= SCLK | SDO;
     P1DIR &= ~SDI;
 
-    P2DIR |= CS;// | CS2;                         // P2.0 CS (chip select)
-    P2OUT |= CS;// | CS2;
+    P1DIR |= CS;// | CS2;                         // P1.0 CS (chip select)
+    P1OUT |= CS;// | CS2;
 
     //P1DIR &= ~(INT1 | INT2);                      // P1.4 and P1.3 as INT (INTERRUPT, not used yet)
 
