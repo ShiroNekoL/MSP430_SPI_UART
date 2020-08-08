@@ -75,8 +75,8 @@ uint32_t Lora_channel[10] = {
     436500000
 };
 
-void SX1278_ChangeFHSS(uint8_t index) {
-    SX1278_SetChannel(Lora_channel[index %= 10]);
+static void SX1278_ChangeFHSS(uint8_t index) {
+    SX1278_SetChannel(Lora_channel[index % 10]);
 }
 
 static uint8_t SX1278_GetPASelect(uint32_t channel) {
@@ -94,7 +94,7 @@ static uint8_t SX1278_GetFSKBandwithVal(uint32_t bandwidth) {
         }
     }
     // ERROR: Value not found
-    while(1);
+    while (1);
 }
 
 void SX1278_Init(RadioEvents* events) {
@@ -1123,7 +1123,7 @@ void SX1278_OnDIO1IRQ( void )
 }
 
 void SX1278_OnDIO2IRQ(void) {
-    switch( sx1278.Settings.State )
+    switch(sx1278.Settings.State)
     {
         case RF_RX_RUNNING:
             switch( sx1278.Settings.Modem )
@@ -1151,7 +1151,7 @@ void SX1278_OnDIO2IRQ(void) {
 
 //                    if((radio_events != NULL) && (radio_events->FhssChangeChannel != NULL))
 //                        radio_events->FhssChangeChannel((SX1278_Read(REG_LR_HOPCHANNEL) & RFLR_HOPCHANNEL_CHANNEL_MASK));
-                    SX1278_ChangeFHSS((SX1278_Read(REG_LR_HOPCHANNEL) & RFLR_HOPCHANNEL_CHANNEL_MASK));
+//                    SX1278_ChangeFHSS((SX1278_Read(REG_LR_HOPCHANNEL) & RFLR_HOPCHANNEL_CHANNEL_MASK));
                 }
                 break;
             default:
@@ -1171,7 +1171,7 @@ void SX1278_OnDIO2IRQ(void) {
 
 //                    if((radio_events != NULL ) && ( radio_events->FhssChangeChannel != NULL))
 //                        radio_events->FhssChangeChannel((SX1278_Read(REG_LR_HOPCHANNEL) & RFLR_HOPCHANNEL_CHANNEL_MASK));
-                    SX1278_ChangeFHSS((SX1278_Read(REG_LR_HOPCHANNEL) & RFLR_HOPCHANNEL_CHANNEL_MASK));
+//                    SX1278_ChangeFHSS((SX1278_Read(REG_LR_HOPCHANNEL) & RFLR_HOPCHANNEL_CHANNEL_MASK));
                 }
                 break;
             default:

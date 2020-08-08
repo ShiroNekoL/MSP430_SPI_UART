@@ -10,9 +10,6 @@
 
 #define Port_2  2
 
-//#define INT1    BIT4
-//#define INT2    BIT3
-
 #define RF_FREQUENCY                        434000000 // Hz
 
 #define FSK_FDEV                            25e3      // Hz
@@ -35,9 +32,11 @@
 
 #define RX_TIMEOUT_VALUE                    1000
 #define TX_OUTPUT_POWER                     14        // dBm
-#define BUFFER_SIZE                         32 // Define the payload size here
+#define BUFFER_SIZE                         32        // Define the payload size here
 
 void OnRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr);
+void OnRxError();
 void OnTxDone();
+void LORA_Init();
 
 #endif /* MAIN_H_ */
