@@ -28,6 +28,14 @@ sx1276.obj: ../sx1276regs-fsk.h
 sx1276.obj: ../sx1276regs-lora.h
 sx1276.obj: ../spi.h
 sx1276.obj: ../main.h
+sx1276.obj: ../mcu.h
+sx1276.obj: ../uart.h
+sx1276.obj: ../spi.h
+sx1276.obj: ../base64.h
+sx1276.obj: ../main.h
+sx1276.obj: D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdlib.h
+sx1276.obj: D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdio.h
+sx1276.obj: D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdarg.h
 sx1276.obj: ../uart.h
 
 ../sx1276.c: 
@@ -58,4 +66,12 @@ D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/machine/_limit
 ../sx1276regs-lora.h: 
 ../spi.h: 
 ../main.h: 
+../mcu.h: 
+../uart.h: 
+../spi.h: 
+../base64.h: 
+../main.h: 
+D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdlib.h: 
+D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdio.h: 
+D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdarg.h: 
 ../uart.h: 

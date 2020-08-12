@@ -1,19 +1,7 @@
-#include <msp430.h>
-#include <stdint.h>
-#include "mcu.h"
-#include "uart.h"
-#include "spi.h"
-#include "sx1276.h"
-#include "sx1276regs-fsk.h"
-#include "base64.h"
 #include "main.h"
 
 uint8_t buffer[BUFFER_SIZE];
-uint8_t buffer2[BUFFER_SIZE];
-
-static RadioEvents radio_events;
-
-int state = 0;
+volatile uint8_t TX_Ready;
 
 void SendPing() {
     buffer[0] = 1;
@@ -25,111 +13,58 @@ void SendPing() {
     buffer[6] = 'N';
     buffer[7] = 'G';
 
-    UART_WriteStr("send_started\n\r");
-//  P2IE &= ~BIT0;
+    UART_WriteStr("Send_started\n\r");
     SX1278_Send(buffer, 8);
-//  P2IE |= BIT0;
-//  P2IFG &= ~BIT0;
-//  SX1278_SetTX(10000);
 }
 
 void LORA_Init();
 void OnRxError();
+void SendPacket(char *string, uint8_t size);
+void SendTestPackets(uint32_t number);
 
 
 void main(void) {
     MCU_Init();
-
-    P1DIR |= BIT0;
-
     UART_Init();
     UART_WriteStr("\n\n Start \n\n");
     SPI_Init();
-//    P2IE &= ~BIT0;
     LORA_Init();
 
-//    UART_WriteStr("$IND \n,");
-//    UART_PrintHex8(SX1278_Read(REG_VERSION));
-//    UART_WriteChar(',');
-//    UART_PrintHex32(RF_FREQUENCY);
-//    UART_WriteChar(',');
-//    UART_PrintHex8(TX_OUTPUT_POWER);
-//    UART_WriteChar(',');
-//    UART_PrintHex8(LORA_BANDWIDTH);
-//    UART_WriteChar(',');
-//    UART_PrintHex8(LORA_SPREADING_FACTOR);
-//    UART_WriteChar(',');
-//    UART_PrintHex8(LORA_CODINGRATE);
-//    UART_WriteChar('\n');
-//    UART_WriteStr("1? \n");
+    UART_WriteStr("$IND \n,");
+    UART_PrintHex8(SX1278_Read(REG_VERSION));
+    UART_WriteChar(',');
+    UART_PrintHex32(RF_FREQUENCY);
+    UART_WriteChar(',');
+    UART_PrintHex8(TX_OUTPUT_POWER);
+    UART_WriteChar(',');
+    UART_PrintHex8(LORA_BANDWIDTH);
+    UART_WriteChar(',');
+    UART_PrintHex8(LORA_SPREADING_FACTOR);
+    UART_WriteChar(',');
+    UART_PrintHex8(LORA_CODINGRATE);
+    UART_WriteChar('\n');
 
-//    UART_PrintHex8(SX1278_Read(0x06));
-//    UART_PrintHex8(SX1278_Read(0x07));
-//    UART_PrintHex8(SX1278_Read(0x08));
-//    UART_WriteStr("\n2? \n");
     __delay_cycles(1000000);
-    SX1278_SetRX(100000);
-//  P2IE |= BIT0;
+    SX1278_SetRX();
+    TX_Ready = 1;
     __bis_SR_register(GIE);
-//    SX1278_SetRX(10000);
-//    UART_PrintHex8(SX1278_Read(REG_LR_FRFMSB));
-//    UART_PrintHex8(SX1278_Read(REG_LR_FRFMID));
-//    UART_PrintHex8(SX1278_Read(REG_LR_FRFLSB));
-//    __delay_cycles(16000000);
-//    UART_PrintHex8(SX1278_Read(REG_LR_OPMODE));
-//    UART_WriteStr("\n");
-//    UART_PrintHex8(SX1278_Read(REG_LR_MODEMCONFIG1));
-//    UART_WriteStr("\n");
-//    UART_PrintHex8(SX1278_Read(REG_LR_MODEMCONFIG2));
-//    UART_WriteStr("\n");
-//    UART_PrintHex8(SX1278_Read(REG_LR_MODEMCONFIG3));
-//    UART_WriteStr("\n");
-//    UART_PrintHex8(SX1278_Read(REG_LR_SYMBTIMEOUTLSB));
-//    UART_WriteStr("\n");
-//    UART_PrintHex8(SX1278_Read(REG_LR_PREAMBLEMSB));
-//    UART_WriteStr("\n");
-//    UART_PrintHex8(SX1278_Read(REG_LR_PREAMBLELSB));
-//    UART_WriteStr("\n");
-//    P2IE |= BIT0;
-//  while(1){ mcu_delayms(500); }
-//    state = 1;
-//  SendPing();
-//  UART_PrintHex8(SX1278_Read(0x01));
-//  UART_WriteChar('\n');
-//  UART_PrintHex8(SX1278_Read(0x41));
-//  __delay_cycles(1000000);
-//    P2IE |= BIT0;
-//    SendPing();
-//    SX1278_SetRX(0);
+    SendTestPackets(100);
     while(1) {
+//      SendPing();
 
-//    if(state == 0)
-//    {
-////      state = 1;
-//      SendPing();
-//    } else if(state == 1)
-//    {
-//
-//    }
-//      SendPing();
-//        SendPing();
 //        __delay_cycles(16000000);
-//        __delay_cycles(1000000);
-//        __delay_cycles(1000000);
-
-//        Delay_ms(1000);
-//
     }
 }
 
 /*
- * INterrupt
+ * Interrupt
  */
 #pragma vector=PORT2_VECTOR
 __interrupt void Port_2_ISR(void) {
     if((P2IFG & BIT0) == BIT0) {
         UART_WriteStr("Interrupt DIO0 happens \n\r");
         SX1278_OnDIO0IRQ();
+        TX_Ready = 1;
     } else if ((P2IFG & BIT1) == BIT1) {
         UART_WriteStr("Interrupt DIO1 happens \n\r");
         SX1278_OnDIO1IRQ();
@@ -152,59 +87,44 @@ __interrupt void Port_2_ISR(void) {
 
 
 void OnTxDone() {
-    UART_WriteStr("$TXS\n");
-//    SX1278_SetRX(10000);
+    UART_WriteStr("$TX Success\n");
+}
 
-//  if(state == 1) sx1276_set_rx(0);
+void OnTxTimeout() {
 
 }
 
 void OnRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr) {
+    UART_WriteStr("Receive Finished \n");
 
-    UART_WriteStr("txdone_start");
-    P1OUT |= BIT0;
+    UART_WriteStr("RSSI: ");
+    UART_PrintDec(rssi);
 
-    UART_WriteStr("$RXS,");
-
-    UART_PrintHex32(rssi);
-    UART_WriteChar(',');
-
+    UART_WriteStr(" dBm, SNR: ");
     UART_PrintHex8(snr);
-    UART_WriteChar(',');
 
+    UART_WriteStr(" dB, Payload size: ");
     UART_PrintHex32(size);
-    UART_WriteChar(',');
+    UART_WriteStr(" bytes\n");
 
-//    Base64_Encode(payload, size);
-    UART_WriteStr(payload);
+    UART_WriteStr((char *) payload);
     UART_WriteChar('\n');
-    P1OUT &= ~BIT0;
-    UART_WriteStr("????");
-
-
-//    SX1278_SetTX(10000);
-//    SendPing();
-
-//  if(state == 1) SendPing();
-}
-
-void OnRxError() {
-    UART_WriteStr("$RXE\n");
 }
 
 void OnRxTimeout() {
-    UART_WriteStr("$RXTimeout\n");
-//    SX1278_SetRX(10000);
+    UART_WriteStr("$RX Timeout\n");
+}
+
+void OnRxError() {
+    UART_WriteStr("$RX Error\n");
+}
+
+void CadDone(bool cadDone) {
+
 }
 
 void LORA_Init() {
-    radio_events.TxDone = OnTxDone;
-    radio_events.RxDone = OnRxDone;
-    //radio_events.TxTimeout = OnTxTimeout;
-    radio_events.RxTimeout = OnRxTimeout;
-    radio_events.RxError = OnRxError;
-
-    SX1278_Init(&radio_events);
+    SX1278_Init();
     SX1278_SetChannel(RF_FREQUENCY);
 
     SX1278_SetRXConfig(MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
@@ -218,4 +138,24 @@ void LORA_Init() {
                                    true, 0, 0, LORA_IQ_INVERSION_ON, 3000);
 }
 
+void SendPacket(char *string, uint8_t size)
+{
+    while(1)
+    {
+        if (TX_Ready == 1)   break; // Tam thoi su dung cho den khi co cach khac
+    }
+    SX1278_Send(string, size);
+    TX_Ready = 0; // Tam thoi su dung cho den khi co cach khac
+}
+void SendTestPackets(uint32_t number)
+{
+    uint32_t i = 0;
+    char temp[12];
+    for(i = 0; i < number; i++)
+    {
+        sprintf(temp, "PING: %d\n\r", i);
+        SendPacket(temp, 12);
+//        Delay_ms(1500);
+    }
+}
 

@@ -4,7 +4,7 @@ volatile uint8_t SPI_Buffer = 0;
 
 void SPI_Init() {
     UCB0CTL1 = UCSWRST;
-    UCB0CTL0 = UCSYNC + UCSPB + UCMSB + UCCKPH;   // UCMSB + UCMST + UCSYNC; // 3-pin, 8-bit SPI master
+    UCB0CTL0 = UCSYNC + UCSPB + UCMSB + UCCKPH;   // UCMSB + UCMST + UCSYNC; 3-pin, 8-bit SPI master
     UCB0CTL1 |= UCSSEL_2;                         // SMCLK
     UCB0BR0 = 0x02;                               // Frequency CPU / 2 (16Mhz / 2 = 8 Mhz SPI)
     UCB0BR1 = 0;
@@ -15,8 +15,8 @@ void SPI_Init() {
     P1DIR |= SCLK | SDO;
     P1DIR &= ~SDI;
 
-    P1DIR |= CS;// | CS2;                         // P1.0 CS (chip select)
-    P1OUT |= CS;// | CS2;
+    P1DIR |= CS;                                 // P1.0 CS (chip select)
+    P1OUT |= CS;
 
     //P1DIR &= ~(INT1 | INT2);                      // P1.4 and P1.3 as INT (INTERRUPT, not used yet)
 
@@ -24,21 +24,21 @@ void SPI_Init() {
 }
 
 void SPI_TXReady() {
-    while (!(IFG2 & UCB0TXIFG)); // TX buffer ready?
+    while (!(IFG2 & UCB0TXIFG));                // TX buffer ready?
 }
 
 void SPI_RXReady() {
-    while (!(IFG2 & UCB0RXIFG)); // RX Received?
+    while (!(IFG2 & UCB0RXIFG));                // RX Received?
 }
 
 void SPI_SendByte(uint8_t data) {
     SPI_TXReady();
-    UCB0TXBUF = data;            // Send data over SPI to Slave
+    UCB0TXBUF = data;                           // Send data over SPI to Slave
 }
 
 void SPI_Receive() {
     SPI_RXReady();
-    SPI_Buffer = UCB0RXBUF;         // Store received data
+    SPI_Buffer = UCB0RXBUF;                     // Store received data
 }
 
 void SPI_TransferByte(uint8_t data) {

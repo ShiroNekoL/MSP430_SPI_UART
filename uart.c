@@ -38,6 +38,33 @@ void UART_WriteChar(char character) {
     UCA0TXBUF = character;
 }
 
+void UART_PrintDec(int32_t number) {
+    char buffer[8 + 1];
+    int32_t abs_num = abs(number);
+
+    uint8_t size = 0;
+    while (abs_num) {
+        buffer[size++] = '0' + abs_num % 10;
+        abs_num /= 10;
+    }
+
+    if (size == 0)
+        buffer[size++] = '0';
+    if ((int) number < 0)
+        buffer[size++] = '-';
+
+    uint8_t i, j;
+    for (i = 0, j = size - 1; i < j; i++, j--) {
+        char temp = buffer[i];
+        buffer[i] = buffer[j];
+        buffer[j] = temp;
+    }
+
+    buffer[size] = '\0';
+
+    UART_WriteStr(buffer);
+}
+
 void UART_PrintHex8(uint8_t number) {
     char buf[2 + 1];
     char *str = &buf[3 - 1];

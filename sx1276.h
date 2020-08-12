@@ -14,15 +14,15 @@
 #include "uart.h"
 #include "main.h"
 
-typedef struct {
-    void (*TxDone) ();
-    void (*TxTimeout) ();
-    void (*RxDone) (uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr);
-    void (*RxTimeout) ();
-    void (*RxError) ();
-    void (*FhssChangeChannel) (uint8_t currentChannel);
-    void (*CadDone) (int8_t channelActivityDetected);
-} RadioEvents;
+//typedef struct {
+//    void (*TxDone) ();
+//    void (*TxTimeout) ();
+//    void (*RxDone) (uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr);
+//    void (*RxTimeout) ();
+//    void (*RxError) ();
+//    void (*FhssChangeChannel) (uint8_t currentChannel);
+//    void (*CadDone) (int8_t channelActivityDetected);
+//} RadioEvents;
 
 typedef enum {
     RF_IDLE = 0,
@@ -97,74 +97,8 @@ typedef struct {
 } RadioSettings;
 
 typedef struct sx1278_struct {
-    /*
-    Gpio_t        Reset;
-    Gpio_t        DIO0;
-    Gpio_t        DIO1;
-    Gpio_t        DIO2;
-    Gpio_t        DIO3;
-    Gpio_t        DIO4;
-    Gpio_t        DIO5;
-    Spi_t         Spi;
-    */
     RadioSettings Settings;
 } SX1278;
-
-//typedef struct {
-//    RadioModem    Modem;
-//    uint8_t       Addr;
-//    uint8_t       Value;
-//} RadioRegisters;
-//
-//const RadioRegisters radio_registers[] = {
-//    { MODEM_FSK , REG_LNA                 , 0x23 },
-//    { MODEM_FSK , REG_RXCONFIG            , 0x1E },
-//    { MODEM_FSK , REG_RSSICONFIG          , 0xD2 },
-//    { MODEM_FSK , REG_AFCFEI              , 0x01 },
-//    { MODEM_FSK , REG_PREAMBLEDETECT      , 0xAA },
-//    { MODEM_FSK , REG_OSC                 , 0x07 },
-//    { MODEM_FSK , REG_SYNCCONFIG          , 0x12 },
-//    { MODEM_FSK , REG_SYNCVALUE1          , 0xC1 },
-//    { MODEM_FSK , REG_SYNCVALUE2          , 0x94 },
-//    { MODEM_FSK , REG_SYNCVALUE3          , 0xC1 },
-//    { MODEM_FSK , REG_PACKETCONFIG1       , 0xD8 },
-//    { MODEM_FSK , REG_FIFOTHRESH          , 0x8F },
-//    { MODEM_FSK , REG_IMAGECAL            , 0x02 },
-//    { MODEM_FSK , REG_DIOMAPPING1         , 0x00 },
-//    { MODEM_FSK , REG_DIOMAPPING2         , 0x30 },
-//    { MODEM_LORA, REG_LR_PAYLOADMAXLENGTH , 0x40 },
-//};
-//
-//typedef struct {
-//    uint32_t bandwidth;
-//    uint8_t  RegValue;
-//} FSKBandwith;
-//
-//const FSKBandwith fsk_bandwidths[] = {
-//    { 2600  , 0x17 },
-//    { 3100  , 0x0F },
-//    { 3900  , 0x07 },
-//    { 5200  , 0x16 },
-//    { 6300  , 0x0E },
-//    { 7800  , 0x06 },
-//    { 10400 , 0x15 },
-//    { 12500 , 0x0D },
-//    { 15600 , 0x05 },
-//    { 20800 , 0x14 },
-//    { 25000 , 0x0C },
-//    { 31300 , 0x04 },
-//    { 41700 , 0x13 },
-//    { 50000 , 0x0B },
-//    { 62500 , 0x03 },
-//    { 83333 , 0x12 },
-//    { 100000, 0x0A },
-//    { 125000, 0x02 },
-//    { 166700, 0x11 },
-//    { 200000, 0x09 },
-//    { 250000, 0x01 },
-//    { 300000, 0x00 }, // Invalid Badwidth
-//};
-
 
 #define XTAL_FREQ                   32000000
 #define FREQ_STEP                   61.03515625             // 32x10^6 / 2^19, reference at page 109
@@ -176,7 +110,7 @@ typedef struct sx1278_struct {
 
 extern SX1278 sx1278;
 
-void SX1278_Init(RadioEvents *events);                                              // Done
+void SX1278_Init();                                                                 // Done
 void SX1278_Reset(uint8_t ResetPort, uint8_t ResetPin);                             // Done
 void SX1278_RXChainCalib();                                                         // Done
 
@@ -199,13 +133,13 @@ uint32_t SX1278_GetTimeOnAir(RadioModem modem, uint8_t pktLen);                 
 void SX1278_SetChannel(uint32_t freq);                                              // Done
 void SX1278_SetModem(RadioModem modem);                                             // Done
 void SX1278_SetOpmode(uint8_t opmode);                                              // Done
-void SX1278_SetRX(uint32_t timeout);                                                // Done without Timeout
-void SX1278_SetTX(uint32_t timeout);                                                // Done without Timeout
+void SX1278_SetRX();                                                                // Done without Timeout
+void SX1278_SetTX();                                                                // Done without Timeout
 
 void SX1278_Send(uint8_t *buffer, uint8_t size);
 
 void SX1278_Write(uint8_t addr, uint8_t data);                                      // Done
-void SX1278_WriteBuffer(uint8_t addr, uint8_t* buffer, uint8_t len);                // Done
+void SX1278_WriteBuffer(uint8_t addr, uint8_t* data, uint8_t len);                  // Done
 void SX1278_WriteFIFO(uint8_t *data, uint8_t len);                                  // Done
 
 uint8_t SX1278_Read(uint8_t addr);                                                  // Done

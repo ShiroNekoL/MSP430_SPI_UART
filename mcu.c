@@ -1,6 +1,7 @@
 #include <msp430.h>
 #include <stdint.h>
 #include "mcu.h"
+#include "main.h"
 
 void MCU_Init() {
     WDTCTL = WDTPW + WDTHOLD;   // Disable watchdog
@@ -12,11 +13,14 @@ void MCU_Init() {
     P2OUT &= 0x00;
     P2DIR &= 0x00;
 
+    // Initialize CS pin
+    P1DIR |= BIT0;
+
     // Init irq interrupts
-    P2DIR &= ~(BIT0 | BIT1 | BIT2 /*| BIT3 | BIT4 | BIT5 */); // Set P2.1 SEL as Input
-    P2IES &= ~(BIT0 | BIT1 | BIT2 /*| BIT3 | BIT4 | BIT5 */); // Rising endge 0 -> 1
-    P2IE  |=  (BIT0 | BIT1 | BIT2 /*| BIT3 | BIT4 | BIT5 */); // Enable interrupt for P2.1
-    P2IFG &= ~(BIT0 | BIT1 | BIT2 /*| BIT3 | BIT4 | BIT5 */); // Clear interrupt flag for P2.1
+    P2DIR &= ~(DIO0 | DIO1 | DIO2 /*| DIO3 | DIO4 | DIO5 */); // Set P2.1 SEL as Input
+    P2IES &= ~(DIO0 | DIO1 | DIO2 /*| DIO3 | DIO4 | DIO5 */); // Rising endge 0 -> 1
+    P2IE  |=  (DIO0 | DIO1 | DIO2 /*| DIO3 | DIO4 | DIO5 */); // Enable interrupt for P2.1
+    P2IFG &= ~(DIO0 | DIO1 | DIO2 /*| DIO3 | DIO4 | DIO5 */); // Clear interrupt flag for P2.1
 }
 
 void Delay_ms(uint32_t ms) {

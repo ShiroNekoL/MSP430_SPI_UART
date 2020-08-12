@@ -18,6 +18,25 @@ spi.obj: D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/machi
 spi.obj: D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/machine/_stdint.h
 spi.obj: D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/sys/_stdint.h
 spi.obj: ../main.h
+spi.obj: D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdbool.h
+spi.obj: ../mcu.h
+spi.obj: ../uart.h
+spi.obj: ../spi.h
+spi.obj: ../sx1276.h
+spi.obj: D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/string.h
+spi.obj: D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/math.h
+spi.obj: D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/_defs.h
+spi.obj: D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/machine/_limits.h
+spi.obj: ../mcu.h
+spi.obj: ../sx1276.h
+spi.obj: ../sx1276regs-fsk.h
+spi.obj: ../sx1276regs-lora.h
+spi.obj: ../uart.h
+spi.obj: ../main.h
+spi.obj: ../base64.h
+spi.obj: D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdlib.h
+spi.obj: D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdio.h
+spi.obj: D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdarg.h
 
 ../spi.c: 
 ../spi.h: 
@@ -37,3 +56,22 @@ D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/machine/_types
 D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/machine/_stdint.h: 
 D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/sys/_stdint.h: 
 ../main.h: 
+D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdbool.h: 
+../mcu.h: 
+../uart.h: 
+../spi.h: 
+../sx1276.h: 
+D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/string.h: 
+D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/math.h: 
+D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/_defs.h: 
+D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/machine/_limits.h: 
+../mcu.h: 
+../sx1276.h: 
+../sx1276regs-fsk.h: 
+../sx1276regs-lora.h: 
+../uart.h: 
+../main.h: 
+../base64.h: 
+D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdlib.h: 
+D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdio.h: 
+D:/TI/ccs1000/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdarg.h: 
